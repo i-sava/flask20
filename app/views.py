@@ -1,4 +1,5 @@
 from flask import render_template, url_for, flash, redirect, request
+from werkzeug.urls import url_parse
 from app import app, db, bcrypt
 from app.forms import RegistrationForm, LoginForm
 from app.models import User, Post
@@ -38,7 +39,11 @@ def login():
         if user and bcrypt.check_password_hash(user.password, form.password.data):
             login_user(user, remember=form.remember.data)
             flash('You have been logged in!', category = 'success')
-            return redirect(url_for('index'))
+            next_page = request.args.get('next')
+            print(next_page)
+            if not next_page or url_parse(next_page).netloc != '':
+                next_page = url_for('index')
+            return redirect(next_page)
         else:
             flash('Login unsuccessful. Please check username and password', 
                   category = 'warning')
@@ -77,6 +82,19 @@ def account():
 
 
 '''
+from urllib.parse import urlparse, urljoin
+def is_safe_url(target):
+    ref_url = urlparse(request.host_url)
+    test_url = urlparse(urljoin(request.host_url, target))
+    return test_url.scheme in ('http', 'https') and \
+           ref_url.netloc == test_url.netloc
+
+if not is_safe_url(next):
+    return flask.abort(400)
+
+return flask.redirect(next or flask.url_for('index'))
+
+
 @app.route('/user/add', methods=['GET'])
 def user_records():
     """Create a user via query string parameters."""

@@ -15,7 +15,7 @@
 
 {% from "_render_field.html" import render_field %}
 
-<form method="post" action="{{url_for('login')}}">
+<form method="post" action="{{ url_for('login', next=request.args.get('next')) }}">
 <div class="form-group">
 
     {{ form.hidden_tag() }}
