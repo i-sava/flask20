@@ -5,3 +5,4 @@ if __name__ == '__main__':     # Script executed directly?
 
 # -*- coding: UTF-8 -*-
 # !env/bin/python
+#python -m venv .venv
